@@ -14,8 +14,7 @@ export default class extends Component {
     super(props)
     this.state = {
       emojis: PEOPLE_EMOJIS,
-      emojiCategory: 'PEOPLE_EMOJIS',
-      combinedEmojis: combinedEmojis
+      emojiCategory: 'PEOPLE_EMOJIS'
     }
   }
 
