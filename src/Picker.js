@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import emojione from 'emojione'
+const emojiByName = require('./emoji.json');
 
 /* list of emoji's sourced from http://getemoji.com */
 const PEOPLE_EMOJIS = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '😇', '🤣', '☺️', '😊', '🙂', '🙃', '😉', '😌', '😍', '😘', '😗', '😙', '😚', '😋', '😜', '😝', '😛', '🤑', '🤗', '🤓', '😎', '🤡', '🤠', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '😤', '😠', '😡', '😶', '😐', '😑', '😯', '😦', '😧', '😮', '😲', '😵', '😳', '😱', '😨', '😰', '😢', '😥', '🤤', '😭', '😓', '😪', '😴', '🙄', '🤔', '🤥', '😬', '🤐', '🤢', '🤧', '😷', '🤒', '🤕', '😈', '👿', '👹', '👺', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👐', '🙌', '👏', '🙏', '🤝', '👍', '👎', '👊', '✊', '🤛', '🤜', '🤞', '✌️', '🤘', '👌', '👈', '👉', '👆', '👇', '☝️', '✋', '🤚', '🖐', '🖖', '👋', '🤙', '💪', '🖕', '✍️', '🤳', '💅', '🖖', '💄', '💋', '👄', '👅', '👂', '👃', '👣', '👁', '👀', '👗', '👠', '👞', '👟', '👒', '🎩', '🎓', '👑', '⛑', '🎒', '👝', '👛', '👜', '💼', '👓', '🕶', '☂️']
@@ -60,14 +61,23 @@ export default class extends Component {
   }
 
   onEmojiSelect (e) {
-    if(e.target.alt === undefined) { return }
+    e ? this.props.onEmojiSelected(e)
+      : null
+  }
 
-    let emoji = {
-      image: e.target,
-      unicode: e.target.alt,
-      shortname: e.target.title
+  stripColons (str) {
+    var colonIndex = str.indexOf(':');
+    if (colonIndex > -1) {
+      if (colonIndex === str.length - 1) {
+        str = str.substring(0, colonIndex);
+        return this.stripColons(str);
+      } else {
+        str = str.substr(colonIndex + 1);
+        return this.stripColons(str);
+      }
     }
-    this.props.onEmojiSelected(emoji)
+
+    return str;
   }
 
   renderTabs () {
@@ -78,7 +88,6 @@ export default class extends Component {
           selected={emojiCategory === 'PEOPLE_EMOJIS'}
           onClick={() => {this.toggleEmojis('PEOPLE_EMOJIS')}}
           dangerouslySetInnerHTML={{__html: emojione.unicodeToImage('😀')}} />
-
         <Title
           selected={emojiCategory === 'ANIMALS_NATURE_EMOJIS'}
           onClick={() => {this.toggleEmojis('ANIMALS_NATURE_EMOJIS')}}
@@ -113,12 +122,14 @@ export default class extends Component {
           <EmojiWrapper>
             {
               emojis.map((emoji, index) => (
-                <Emoji
-                  className='ld-emoji'
-                  key={index}
-                  role='presentation'
-                  onClick={::this.onEmojiSelect}
-                  dangerouslySetInnerHTML={{__html: emojione.unicodeToImage(emoji)}} />
+                emojiByName[this.stripColons(emojione.toShort(emoji))]
+                  ? <Emoji
+                      className='ld-emoji'
+                      key={index}
+                      role='presentation'
+                      onClick={this.onEmojiSelect.bind(this, emojione.toShort(emoji))}
+                      dangerouslySetInnerHTML={{__html: emoji}}/>
+                  : null
               ))
             }
           </EmojiWrapper>
